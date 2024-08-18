@@ -1,4 +1,4 @@
-import { Weather, Visibility, NonSensitiveDiaryEntry, SharedDiaryFields} from "./types"
+import { Weather, Visibility, NonSensitiveDiaryEntry, SharedDiaryFields, NewDiaryEntry} from "./types"
 
 const isWeather = (text:string): text is Weather => {
     return Object.values(Weather).map(v => v.toString()).includes(text);
@@ -35,11 +35,15 @@ const hasSharedDiaryFields = (obj:unknown): obj is SharedDiaryFields  => {
                 && (isString(obj.visibility) && isVisibility(obj.visibility))
             ){
                 return true
-            }      
+            } else{
+                throw new Error("Fields not correct format" +  JSON.stringify(obj))
+            }     
+        } else {
+        throw new Error("Didn't have all shared fields!" + JSON.stringify(obj))
         }
-        return false
+    } else {
+    throw new Error("Was not object!" + obj)
     }
-    return false
 }
 
 
@@ -54,7 +58,16 @@ export const toNonSensitiveDiaryEntry = (obj:unknown): NonSensitiveDiaryEntry =>
         }
     }
 
+export const toNewDiaryEntry = (obj:unknown): NewDiaryEntry => {
+    if (hasSharedDiaryFields(obj) && 'comment' in obj && isString(obj.comment)){
+        const newDiaryEntry: NewDiaryEntry = {...obj, comment: obj.comment};
+        return newDiaryEntry
+        }
+        else {
+            throw new Error("Could not convert to new diary entry:" + obj)
+        }
 
+}
 
 
 
